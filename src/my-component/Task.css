@@ -1,0 +1,4 @@
+.text:hover {
+  padding: 10px 5px !important;
+  box-shadow: 0 7px 10px rgba(0, 0, 0, 0.3);
+}
