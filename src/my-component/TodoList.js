@@ -3,44 +3,33 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Task from "./Task";
 import { tasksContext } from "../context/TaskContext";
-import { useState, useContext, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { useToast } from "../context/ToastContext";
+import { useState, useContext } from "react";
 
 export default function TodoList() {
-  const { todo, setTodo } = useContext(tasksContext);
+  const { todos, dispatch } = useContext(tasksContext);
+  const { showHideToast } = useToast();
+
   const [tasksShow, setTaskShow] = useState("all");
   const [titleInput, setTitleInput] = useState("");
 
-  // قراءة المهام عند بداية تحميل الصفحة
-  useEffect(() => {
-    const storedTodos = JSON.parse(localStorage.getItem("todos")) ?? [];
-    setTodo(storedTodos);
-  }, []);
-
-  // حفظ تلقائي عند أي تغيير
-  useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todo));
-  }, [todo]);
-
   // فلترة المهام
-  const filteredTodos = todo.filter((t) => {
+  const filteredTodos = todos.filter((t) => {
     if (tasksShow === "done") return t.isDone;
     if (tasksShow === "notDone") return !t.isDone;
-    return true; // "all"
+    return true;
   });
 
   // إضافة مهمة جديدة
   function handleAddClick() {
-    if (titleInput.trim() !== "") {
-      const newTodo = {
-        id: uuidv4(),
-        title: titleInput,
-        taskDetails: "",
-        isDone: false,
-      };
-      setTodo([...todo, newTodo]);
-      setTitleInput("");
+    if (!titleInput.trim()) {
+      showHideToast("الرجاء إدخال عنوان المهمة");
+      return;
     }
+
+    dispatch({ type: "added", payload: { newTitle: titleInput } });
+    setTitleInput("");
+    showHideToast("تمت الإضافة بنجاح ✅");
   }
 
   return (
